@@ -8,14 +8,21 @@
 
 ## Starting the Services
 
-1. **Build and start all services:**
+1. **Build the project locally first:**
+   ```bash
+   mvn clean package -DskipTests
+   ```
+   This builds all JARs that will be copied into Docker images.
+
+2. **Build and start all services:**
    ```bash
    docker-compose up --build
    ```
+   The Dockerfiles will copy the pre-built JARs from the `target/` directories.
 
-2. **Wait for all services to start** (check logs for "Started ...Application")
+3. **Wait for all services to start** (check logs for "Started ...Application")
 
-3. **Verify services are running:**
+4. **Verify services are running:**
    ```bash
    curl http://localhost:8081/actuator/health  # STS
    curl http://localhost:8082/actuator/health  # Gateway
