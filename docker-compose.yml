@@ -1,0 +1,105 @@
+services:
+  sts:
+    build:
+      context: .
+      dockerfile: sts-service/Dockerfile
+    container_name: sts-service
+    ports:
+      - "8081:8080"
+    networks:
+      - obo-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+
+  gateway:
+    build:
+      context: .
+      dockerfile: gateway-service/Dockerfile
+    container_name: gateway-service
+    ports:
+      - "8082:8080"
+    depends_on:
+      sts:
+        condition: service_started
+      payments:
+        condition: service_started
+    networks:
+      - obo-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+
+  payments:
+    build:
+      context: .
+      dockerfile: payments-service/Dockerfile
+    container_name: payments-service
+    ports:
+      - "8083:8080"
+      - "9093:9090"
+    depends_on:
+      sts:
+        condition: service_started
+      activemq:
+        condition: service_healthy
+    networks:
+      - obo-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+
+  worker:
+    build:
+      context: .
+      dockerfile: payments-worker-service/Dockerfile
+    container_name: payments-worker-service
+    ports:
+      - "8084:8080"
+    depends_on:
+      sts:
+        condition: service_started
+      activemq:
+        condition: service_healthy
+      downstream:
+        condition: service_started
+    networks:
+      - obo-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+
+  downstream:
+    build:
+      context: .
+      dockerfile: downstream-service-c/Dockerfile
+    container_name: downstream-service-c
+    ports:
+      - "8085:8080"
+      - "9095:9090"
+    depends_on:
+      sts:
+        condition: service_started
+    networks:
+      - obo-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+
+  activemq:
+    image: rmohr/activemq:5.15.9
+    container_name: activemq
+    ports:
+      - "61616:61616"
+      - "8161:8161"
+    networks:
+      - obo-network
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider http://localhost:8161/ || exit 1",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+networks:
+  obo-network:
+    driver: bridge

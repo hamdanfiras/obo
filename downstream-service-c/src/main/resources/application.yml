@@ -1,0 +1,19 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: downstream-service-c
+  security:
+    oauth2:
+      # JWT decoder configured manually in SecurityConfig
+
+grpc:
+  server:
+    port: 9090
+
+logging:
+  level:
+    com.example.obo: DEBUG
+    org.springframework.security: DEBUG
+

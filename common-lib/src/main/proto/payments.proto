@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package com.example.obo.payments;
+
+option java_multiple_files = true;
+option java_package = "com.example.obo.payments";
+option java_outer_classname = "PaymentsProto";
+
+service PaymentsService {
+  rpc InitiatePayment(PaymentRequest) returns (PaymentResponse);
+  rpc FinalizePayment(FinalizeRequest) returns (FinalizeResponse);
+}
+
+message PaymentRequest {
+  string amount = 1;
+  string currency = 2;
+  string merchant_id = 3;
+}
+
+message PaymentResponse {
+  string payment_id = 1;
+  string status = 2;
+  string message = 3;
+}
+
+message FinalizeRequest {
+  string payment_id = 1;
+}
+
+message FinalizeResponse {
+  string status = 1;
+  string message = 2;
+}
+

@@ -1,0 +1,12 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: sts-service
+
+logging:
+  level:
+    com.example.obo: DEBUG
+    org.springframework.security: DEBUG
+

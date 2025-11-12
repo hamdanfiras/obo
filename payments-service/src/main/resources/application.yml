@@ -1,0 +1,22 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: payments-service
+  security:
+    oauth2:
+      # JWT decoder configured manually in SecurityConfig
+  activemq:
+    broker-url: tcp://activemq:61616
+  jms:
+
+grpc:
+  server:
+    port: 9090
+
+logging:
+  level:
+    com.example.obo: DEBUG
+    org.springframework.security: DEBUG
+
