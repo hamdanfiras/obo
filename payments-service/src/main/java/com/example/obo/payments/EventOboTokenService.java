@@ -2,6 +2,7 @@ package com.example.obo.payments;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,11 @@ public class EventOboTokenService {
 
     private static final Logger logger = LoggerFactory.getLogger(EventOboTokenService.class);
     private static final String SECRET = "0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF";
-    private static final String STS_URL = "http://sts:8080/oauth2/token";
+    private final String stsUrl;
+
+    public EventOboTokenService(@Value("${sts.token-uri:http://sts:8080/oauth2/token}") String stsUrl) {
+        this.stsUrl = stsUrl;
+    }
 
     public String issueEventOboToken(String eventType, String scope) {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -38,16 +43,16 @@ public class EventOboTokenService {
         long startTime = System.currentTimeMillis();
         try {
             @SuppressWarnings("unchecked")
-            Map<String, Object> response = restTemplate.postForObject(STS_URL, params, Map.class);
+            Map<String, Object> response = restTemplate.postForObject(stsUrl, params, Map.class);
             long duration = System.currentTimeMillis() - startTime;
-            
+
             if (response == null || !response.containsKey("access_token")) {
                 throw new IllegalStateException("Failed to obtain event OBO token: invalid response");
             }
-            
-            logger.info("Payments-service: Event OBO token exchange completed in {} ms (eventType: {}, scope: {})", 
+
+            logger.info("Payments-service: Event OBO token exchange completed in {} ms (eventType: {}, scope: {})",
                     duration, eventType, scope);
-            
+
             return (String) response.get("access_token");
         } catch (Exception e) {
             long duration = System.currentTimeMillis() - startTime;
@@ -56,4 +61,3 @@ public class EventOboTokenService {
         }
     }
 }
-

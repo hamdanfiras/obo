@@ -1,12 +1,14 @@
-server:
-  port: 8080
-
 spring:
+  profiles:
+    active: dev
   application:
     name: downstream-service-c
   security:
     oauth2:
       # JWT decoder configured manually in SecurityConfig
+
+server:
+  port: 8080
 
 grpc:
   server:

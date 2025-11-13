@@ -1,8 +1,10 @@
 package com.example.obo.payments;
 
+import com.example.obo.common.EventMessage;
 import com.example.obo.payments.PaymentsServiceGrpc.PaymentsServiceImplBase;
 import com.example.obo.payments.PaymentRequest;
 import com.example.obo.payments.PaymentResponse;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.security.interceptors.AuthenticatingServerInterceptor;
 import net.devh.boot.grpc.server.service.GrpcService;
@@ -26,7 +28,8 @@ public class PaymentsGrpcService extends PaymentsServiceImplBase {
 
     @Override
     public void initiatePayment(PaymentRequest request, StreamObserver<PaymentResponse> responseObserver) {
-        // Extract SecurityContext from gRPC context and set it in Spring SecurityContextHolder
+        // Extract SecurityContext from gRPC context and set it in Spring
+        // SecurityContextHolder
         SecurityContext grpcSecurityContext = AuthenticatingServerInterceptor.SECURITY_CONTEXT_KEY.get();
         if (grpcSecurityContext != null) {
             SecurityContextHolder.setContext(grpcSecurityContext);
@@ -34,24 +37,23 @@ public class PaymentsGrpcService extends PaymentsServiceImplBase {
 
         try {
             String paymentId = UUID.randomUUID().toString();
-            System.out.println("Payments Service: Processing payment " + paymentId + " for amount " + request.getAmount());
+            System.out.println(
+                    "Payments Service: Processing payment " + paymentId + " for amount " + request.getAmount());
 
             // Issue event-scoped OBO token
             String eventOboToken = eventOboTokenService.issueEventOboToken("PAYMENT_INITIATED", "payments.process");
 
             // Publish event with OBO token
             var eventPayload = Map.of(
-                "payment_id", paymentId,
-                "amount", request.getAmount(),
-                "currency", request.getCurrency(),
-                "merchant_id", request.getMerchantId()
-            );
+                    "payment_id", paymentId,
+                    "amount", request.getAmount(),
+                    "currency", request.getCurrency(),
+                    "merchant_id", request.getMerchantId());
 
-            var eventMessage = new com.example.obo.common.EventMessage(
-                "PAYMENT_INITIATED",
-                eventOboToken,
-                eventPayload
-            );
+            var eventMessage = new EventMessage(
+                    "PAYMENT_INITIATED",
+                    eventOboToken,
+                    eventPayload);
 
             jmsTemplate.convertAndSend("payment.events", eventMessage);
             System.out.println("Payments Service: Published PAYMENT_INITIATED event with OBO token");
@@ -64,9 +66,15 @@ public class PaymentsGrpcService extends PaymentsServiceImplBase {
 
             responseObserver.onNext(response);
             responseObserver.onCompleted();
+        } catch (Exception e) {
+            System.err.println("Payments Service: Error processing payment: " + e.getMessage());
+            e.printStackTrace();
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription("Failed to process payment: " + e.getMessage())
+                    .withCause(e)
+                    .asRuntimeException());
         } finally {
             SecurityContextHolder.clearContext();
         }
     }
 }
-

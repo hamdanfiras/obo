@@ -7,6 +7,7 @@ import com.example.obo.payments.FinalizeResponse;
 import com.nimbusds.jwt.SignedJWT;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,10 +24,16 @@ public class PaymentEventConsumer {
     private final TokenExchangeService tokenExchangeService;
     private final ManagedChannel downstreamChannel;
 
-    public PaymentEventConsumer(JwtDecoder jwtDecoder, TokenExchangeService tokenExchangeService) {
+    public PaymentEventConsumer(
+            JwtDecoder jwtDecoder,
+            TokenExchangeService tokenExchangeService,
+            @Value("${grpc.client.downstream-service-c.address}") String downstreamAddress) {
         this.jwtDecoder = jwtDecoder;
         this.tokenExchangeService = tokenExchangeService;
-        this.downstreamChannel = ManagedChannelBuilder.forAddress("downstream", 9090)
+        String[] parts = downstreamAddress.split(":");
+        String host = parts[0];
+        int port = Integer.parseInt(parts[1]);
+        this.downstreamChannel = ManagedChannelBuilder.forAddress(host, port)
                 .usePlaintext()
                 .build();
     }
@@ -40,7 +47,7 @@ public class PaymentEventConsumer {
             SignedJWT eventJwt = SignedJWT.parse(event.getOboToken());
             Object evtTypeObj = eventJwt.getJWTClaimsSet().getClaim("evt_type");
             String evtType = evtTypeObj != null ? evtTypeObj.toString() : null;
-            
+
             if (!"PAYMENT_INITIATED".equals(evtType)) {
                 System.err.println("Worker: Invalid event type: " + evtType);
                 return;
@@ -49,8 +56,8 @@ public class PaymentEventConsumer {
             // Decode and set in security context for token exchange
             Jwt jwt = jwtDecoder.decode(event.getOboToken());
             SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken(jwt, event.getOboToken(), java.util.Collections.emptyList())
-            );
+                    new UsernamePasswordAuthenticationToken(jwt, event.getOboToken(),
+                            java.util.Collections.emptyList()));
 
             System.out.println("Worker: Validated event OBO token for " + evtType);
 
@@ -66,8 +73,8 @@ public class PaymentEventConsumer {
             System.out.println("Worker: Exchanged for downstream OBO token");
 
             // Call downstream service
-            PaymentsServiceGrpc.PaymentsServiceBlockingStub stub = 
-                PaymentsServiceGrpc.newBlockingStub(downstreamChannel)
+            PaymentsServiceGrpc.PaymentsServiceBlockingStub stub = PaymentsServiceGrpc
+                    .newBlockingStub(downstreamChannel)
                     .withInterceptors(new OboGrpcClientInterceptor(() -> downstreamOboToken));
 
             FinalizeRequest request = FinalizeRequest.newBuilder()
@@ -85,4 +92,3 @@ public class PaymentEventConsumer {
         }
     }
 }
-

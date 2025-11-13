@@ -53,13 +53,63 @@ mvn clean install -DskipTests
 docker-compose up --build
 ```
 
-This will start all services:
+This will start all services with the `docker` profile:
 - STS Service: http://localhost:8081
 - Gateway Service: http://localhost:8082
 - Payments Service: http://localhost:8083 (HTTP), localhost:9093 (gRPC)
 - Worker Service: http://localhost:8084
 - Downstream Service: http://localhost:8085 (HTTP), localhost:9095 (gRPC)
 - ActiveMQ: tcp://localhost:61616, http://localhost:8161 (admin console)
+
+### Run Locally (Development Mode)
+
+The application supports two Spring profiles:
+- **`dev`** (default): For running services locally outside Docker
+- **`docker`**: For running services inside Docker containers
+
+To run services locally:
+
+1. **Start ActiveMQ in Docker** (required for both profiles):
+   ```bash
+   docker-compose up activemq
+   ```
+
+2. **Start each service locally** (in separate terminals):
+   ```bash
+   # Terminal 1: STS Service
+   cd sts-service
+   mvn spring-boot:run
+   
+   # Terminal 2: Gateway Service
+   cd gateway-service
+   mvn spring-boot:run
+   
+   # Terminal 3: Payments Service
+   cd payments-service
+   mvn spring-boot:run
+   
+   # Terminal 4: Worker Service
+   cd payments-worker-service
+   mvn spring-boot:run
+   
+   # Terminal 5: Downstream Service
+   cd downstream-service-c
+   mvn spring-boot:run
+   ```
+
+   Services will use the `dev` profile by default, which configures:
+   - ActiveMQ connection: `tcp://localhost:61616`
+   - STS token URI: `http://localhost:8081/oauth2/token`
+   - gRPC endpoints: `localhost:9093` (payments), `localhost:9095` (downstream)
+
+3. **Access services** (same ports as Docker):
+   - STS Service: http://localhost:8081
+   - Gateway Service: http://localhost:8082
+   - Payments Service: http://localhost:8083 (HTTP), localhost:9093 (gRPC)
+   - Worker Service: http://localhost:8084
+   - Downstream Service: http://localhost:8085 (HTTP), localhost:9095 (gRPC)
+
+**Note**: Ports are unified between `dev` and `docker` profiles for consistency. Make sure to start them in the correct order (STS first, then gateway/payments, then worker/downstream).
 
 ## Testing the Flow
 
@@ -82,6 +132,19 @@ Or use a simple script:
 
 ### 2. Call the Gateway
 
+When running with Docker Compose:
+```bash
+curl -X POST http://localhost:8082/api/payments/initiate \
+  -H "Authorization: Bearer <user_jwt_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amount": "100.00",
+    "currency": "USD",
+    "merchant_id": "merchant-123"
+  }'
+```
+
+When running locally (dev profile) - same port as Docker:
 ```bash
 curl -X POST http://localhost:8082/api/payments/initiate \
   -H "Authorization: Bearer <user_jwt_token>" \
@@ -160,29 +223,57 @@ Check the logs of each service to see the token validation and exchange process.
 
 ## Configuration
 
-### STS Service
-- Port: 8080 (exposed as 8081)
+The application uses Spring profiles to configure different environments:
+- **`dev`** profile (default): For local development outside Docker
+- **`docker`** profile: For running in Docker containers (set via `SPRING_PROFILES_ACTIVE=docker` in docker-compose.yml)
+
+### Profile-Specific Configuration
+
+#### Dev Profile (Local Development)
+- ActiveMQ: `tcp://localhost:61616`
+- STS Token URI: `http://localhost:8081/oauth2/token`
+- Service Ports (same as Docker):
+  - STS Service: `8081` (HTTP)
+  - Gateway Service: `8082` (HTTP)
+  - Payments Service: `8083` (HTTP), `9093` (gRPC)
+  - Worker Service: `8084` (HTTP)
+  - Downstream Service: `8085` (HTTP), `9095` (gRPC)
+- gRPC Clients:
+  - Payments Service: `localhost:9093`
+  - Downstream Service: `localhost:9095`
+
+#### Docker Profile (Containerized)
+- ActiveMQ: `tcp://activemq:61616`
+- STS Token URI: `http://sts:8080/oauth2/token`
+- gRPC Clients:
+  - Payments Service: `payments:9090`
+  - Downstream Service: `downstream:9090`
+
+### Service Configuration
+
+#### STS Service
+- Port: 8080 (exposed as 8081 in Docker)
 - Endpoint: `/oauth2/token`
 - Secret: `0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF` (256-bit key for HS256, configured in code)
 
-### Gateway Service
-- Port: 8080 (exposed as 8082)
+#### Gateway Service
+- Port: 8080 (exposed as 8082 in Docker)
 - OAuth2 Client: Configured for token exchange with STS
-- gRPC Client: Connects to Payments Service on port 9090
+- gRPC Client: Connects to Payments Service (profile-based configuration)
 
-### Payments Service
-- HTTP Port: 8080 (exposed as 8083)
-- gRPC Port: 9090 (exposed as 9093)
-- ActiveMQ: Connects to `tcp://activemq:61616`
+#### Payments Service
+- HTTP Port: 8080 (exposed as 8083 in Docker)
+- gRPC Port: 9090 (exposed as 9093 in Docker)
+- ActiveMQ: Profile-based connection (see above)
 
-### Worker Service
-- Port: 8080 (exposed as 8084)
-- ActiveMQ: Consumes from `payment.events` queue
-- gRPC Client: Connects to Downstream Service C on port 9090
+#### Worker Service
+- Port: 8080 (exposed as 8084 in Docker)
+- ActiveMQ: Consumes from `payment.events` queue (profile-based connection)
+- gRPC Client: Connects to Downstream Service C (profile-based configuration)
 
-### Downstream Service C
-- HTTP Port: 8080 (exposed as 8085)
-- gRPC Port: 9090 (exposed as 9095)
+#### Downstream Service C
+- HTTP Port: 8080 (exposed as 8085 in Docker)
+- gRPC Port: 9090 (exposed as 9095 in Docker)
 
 ## Development
 

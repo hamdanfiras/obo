@@ -1,25 +1,21 @@
-server:
-  port: 8080
-
 spring:
+  profiles:
+    active: dev
   application:
     name: payments-worker-service
   security:
     oauth2:
       # JWT decoder configured manually in SecurityConfig
       client:
-        provider:
-          sts:
-            token-uri: http://sts:8080/oauth2/token
         registration:
           obo-generic:
             provider: sts
             client-id: payments-worker-service
             client-secret: secret-worker
             authorization-grant-type: urn:ietf:params:oauth:grant-type:token-exchange
-  activemq:
-    broker-url: tcp://activemq:61616
-  jms:
+
+server:
+  port: 8080
 
 logging:
   level:

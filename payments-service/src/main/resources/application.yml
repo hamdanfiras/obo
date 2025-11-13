@@ -1,15 +1,13 @@
-server:
-  port: 8080
-
 spring:
+  profiles:
+    active: dev
   application:
     name: payments-service
   security:
-    oauth2:
-      # JWT decoder configured manually in SecurityConfig
-  activemq:
-    broker-url: tcp://activemq:61616
-  jms:
+    oauth2: {}  # JWT decoder configured manually in SecurityConfig
+
+server:
+  port: 8080
 
 grpc:
   server:

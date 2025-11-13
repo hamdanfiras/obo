@@ -1,22 +1,21 @@
-server:
-  port: 8080
-
 spring:
+  profiles:
+    active: dev
   application:
     name: gateway-service
   security:
     oauth2:
       # JWT decoder configured manually in SecurityConfig
       client:
-        provider:
-          sts:
-            token-uri: http://sts:8080/oauth2/token
         registration:
           obo-generic:
             provider: sts
             client-id: gateway-service
             client-secret: secret-gateway
             authorization-grant-type: urn:ietf:params:oauth:grant-type:token-exchange
+
+server:
+  port: 8080
 
 logging:
   level:

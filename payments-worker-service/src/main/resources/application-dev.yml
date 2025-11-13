@@ -1,0 +1,17 @@
+server:
+  port: 8084
+
+spring:
+  security:
+    oauth2:
+      client:
+        provider:
+          sts:
+            token-uri: http://localhost:8081/oauth2/token
+  activemq:
+    broker-url: tcp://localhost:61616
+
+grpc:
+  client:
+    downstream-service-c:
+      address: localhost:9095

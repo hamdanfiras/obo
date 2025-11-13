@@ -1,0 +1,15 @@
+spring:
+  security:
+    oauth2:
+      client:
+        provider:
+          sts:
+            token-uri: http://sts:8080/oauth2/token
+  activemq:
+    broker-url: tcp://activemq:61616
+
+grpc:
+  client:
+    downstream-service-c:
+      address: downstream:9090
+

@@ -1,0 +1,13 @@
+spring:
+  security:
+    oauth2:
+      client:
+        provider:
+          sts:
+            token-uri: http://sts:8080/oauth2/token
+
+grpc:
+  client:
+    payments-service:
+      address: payments:9090
+

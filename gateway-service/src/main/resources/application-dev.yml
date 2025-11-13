@@ -1,0 +1,15 @@
+server:
+  port: 8082
+
+spring:
+  security:
+    oauth2:
+      client:
+        provider:
+          sts:
+            token-uri: http://localhost:8081/oauth2/token
+
+grpc:
+  client:
+    payments-service:
+      address: localhost:9093

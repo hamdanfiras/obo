@@ -5,6 +5,7 @@ import com.example.obo.payments.PaymentRequest;
 import com.example.obo.payments.PaymentResponse;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -19,9 +20,14 @@ public class PaymentsController {
     private final TokenExchangeService tokenExchangeService;
     private final ManagedChannel paymentsChannel;
 
-    public PaymentsController(TokenExchangeService tokenExchangeService) {
+    public PaymentsController(
+            TokenExchangeService tokenExchangeService,
+            @Value("${grpc.client.payments-service.address}") String paymentsAddress) {
         this.tokenExchangeService = tokenExchangeService;
-        this.paymentsChannel = ManagedChannelBuilder.forAddress("payments", 9090)
+        String[] parts = paymentsAddress.split(":");
+        String host = parts[0];
+        int port = Integer.parseInt(parts[1]);
+        this.paymentsChannel = ManagedChannelBuilder.forAddress(host, port)
                 .usePlaintext()
                 .build();
     }
@@ -31,7 +37,7 @@ public class PaymentsController {
     public Map<String, Object> initiatePayment(
             @AuthenticationPrincipal Jwt jwt,
             @RequestBody Map<String, String> request) {
-        
+
         String userId = jwt.getSubject();
         System.out.println("Gateway: User " + userId + " initiating payment");
 
@@ -39,8 +45,7 @@ public class PaymentsController {
         String oboToken = tokenExchangeService.exchangeFor("payments-service", "payments.initiate");
         System.out.println("Gateway: Exchanged for OBO token");
 
-        PaymentsServiceGrpc.PaymentsServiceBlockingStub stub = 
-            PaymentsServiceGrpc.newBlockingStub(paymentsChannel)
+        PaymentsServiceGrpc.PaymentsServiceBlockingStub stub = PaymentsServiceGrpc.newBlockingStub(paymentsChannel)
                 .withInterceptors(new OboGrpcClientInterceptor(() -> oboToken));
 
         PaymentRequest grpcRequest = PaymentRequest.newBuilder()
@@ -52,10 +57,8 @@ public class PaymentsController {
         PaymentResponse response = stub.initiatePayment(grpcRequest);
 
         return Map.of(
-            "payment_id", response.getPaymentId(),
-            "status", response.getStatus(),
-            "message", response.getMessage()
-        );
+                "payment_id", response.getPaymentId(),
+                "status", response.getStatus(),
+                "message", response.getMessage());
     }
 }
-

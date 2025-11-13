@@ -8,20 +8,26 @@ echo "OBO Token Exchange PoC - Test Flow"
 echo "=========================================="
 echo ""
 
-# Check if services are running
+# Check if services are running (ports are unified for dev and docker profiles)
 echo "1. Checking if services are running..."
-if ! curl -s http://localhost:8081/actuator/health > /dev/null 2>&1; then
+# Try actuator/health first, fall back to root endpoint
+if ! (curl -s http://localhost:8081/actuator/health > /dev/null 2>&1 || curl -s http://localhost:8081/ > /dev/null 2>&1); then
     echo "   ERROR: STS service is not running on port 8081"
-    echo "   Please start services with: docker-compose up"
+    echo "   Please start services:"
+    echo "   - Docker: docker-compose up"
+    echo "   - Local: mvn spring-boot:run (in sts-service directory)"
     exit 1
 fi
 
-if ! curl -s http://localhost:8082/actuator/health > /dev/null 2>&1; then
+if ! (curl -s http://localhost:8082/actuator/health > /dev/null 2>&1 || curl -s http://localhost:8082/ > /dev/null 2>&1); then
     echo "   ERROR: Gateway service is not running on port 8082"
+    echo "   Please start services:"
+    echo "   - Docker: docker-compose up"
+    echo "   - Local: mvn spring-boot:run (in gateway-service directory)"
     exit 1
 fi
 
-echo "   ✓ Services are running"
+echo "   ✓ Services are running (ports unified for dev and docker profiles)"
 echo ""
 
 # Generate user JWT (simplified - in production, use proper IDP)

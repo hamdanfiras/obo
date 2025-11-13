@@ -1,0 +1,13 @@
+server:
+  port: 8083
+
+spring:
+  activemq:
+    broker-url: tcp://localhost:61616
+
+grpc:
+  server:
+    port: 9093
+
+sts:
+  token-uri: http://localhost:8081/oauth2/token
