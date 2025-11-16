@@ -40,13 +40,14 @@ public class GrpcServerInterceptor implements ServerInterceptor {
             Jwt jwt = jwtDecoder.decode(token);
 
             // Validate audience
-            // String audience = jwt.getAudience() != null && !jwt.getAudience().isEmpty()
-            // ? jwt.getAudience().get(0) : null;
-            // if (!"payments-service".equals(audience)) {
-            // call.close(Status.PERMISSION_DENIED.withDescription("Invalid audience"), new
-            // Metadata());
-            // return new ServerCall.Listener<ReqT>() {};
-            // }
+            String audience = jwt.getAudience() != null && !jwt.getAudience().isEmpty()
+                    ? jwt.getAudience().get(0)
+                    : null;
+            if (!"payments-service".equals(audience)) {
+                call.close(Status.PERMISSION_DENIED.withDescription("Invalid audience"), new Metadata());
+                return new ServerCall.Listener<ReqT>() {
+                };
+            }
 
             // Extract authorities from scope
             String scope = jwt.getClaimAsString("scope");

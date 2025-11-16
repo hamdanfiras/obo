@@ -46,14 +46,10 @@ echo '     "exp": <future_timestamp>'
 echo '   }'
 echo ""
 
-# Prompt for JWT token
-read -p "3. Enter your user JWT token: " USER_JWT
+# User JWT token (hardcoded for testing)
+USER_JWT="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL21vY2staWRwLmV4YW1wbGUuY29tIiwic3ViIjoidXNlci0xMjMiLCJlbWFpbCI6InVzZXJAZXhhbXBsZS5jb20iLCJzY29wZSI6Im9wZW5pZCBwcm9maWxlIHBheW1lbnRzLmluaXRpYXRlIiwiZXhwIjoxNzk0ODA3MTUyfQ.C33TKeJ8NapoTR55BHxZCdFspzyA-ip_hoA3oFIXOIw"
 
-if [ -z "$USER_JWT" ]; then
-    echo "   ERROR: JWT token is required"
-    exit 1
-fi
-
+echo "3. Using hardcoded user JWT token for testing"
 echo ""
 echo "4. Calling Gateway Service..."
 echo "   POST http://localhost:8082/api/payments/initiate"
