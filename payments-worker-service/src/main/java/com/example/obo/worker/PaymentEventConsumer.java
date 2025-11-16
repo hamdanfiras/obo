@@ -1,6 +1,7 @@
 package com.example.obo.worker;
 
 import com.example.obo.common.EventMessage;
+import com.example.obo.common.OboGrpcClientInterceptor;
 import com.example.obo.payments.PaymentsServiceGrpc;
 import com.example.obo.payments.FinalizeRequest;
 import com.example.obo.payments.FinalizeResponse;

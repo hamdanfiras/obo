@@ -1,4 +1,4 @@
-package com.example.obo.gateway;
+package com.example.obo.common;
 
 import io.grpc.*;
 
@@ -27,4 +27,3 @@ public class OboGrpcClientInterceptor implements ClientInterceptor {
         };
     }
 }
-

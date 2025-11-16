@@ -1,4 +1,4 @@
-package com.example.obo.gateway;
+package com.example.obo.common;
 
 import java.util.HashMap;
 import java.util.Map;

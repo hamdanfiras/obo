@@ -1,4 +1,4 @@
-package com.example.obo.gateway;
+package com.example.obo.common;
 
 import java.time.Instant;
 import java.util.Map;
@@ -9,6 +9,7 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizationContext;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
@@ -41,7 +42,7 @@ public class CustomTokenExchangeAuthorizedClientProvider implements OAuth2Author
 
         Authentication principal = context.getPrincipal();
         Object principalObj = principal.getPrincipal();
-        if (!(principalObj instanceof org.springframework.security.oauth2.jwt.Jwt jwt)) {
+        if (!(principalObj instanceof Jwt jwt)) {
             throw new IllegalStateException("Expected Jwt as principal for token exchange");
         }
 

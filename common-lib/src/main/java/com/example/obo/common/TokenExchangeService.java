@@ -1,4 +1,4 @@
-package com.example.obo.gateway;
+package com.example.obo.common;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
