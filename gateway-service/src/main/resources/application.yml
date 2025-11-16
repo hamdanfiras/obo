@@ -11,8 +11,12 @@ spring:
           obo-generic:
             provider: sts
             client-id: gateway-service
-            client-secret: secret-gateway
+            client-authentication-method: none
             authorization-grant-type: urn:ietf:params:oauth:grant-type:token-exchange
+        provider:
+          sts:
+            token-uri: http://idp-service.idp-namespace.svc.cluster.local/oauth2/token
+            # ^ replace with your actual in-cluster URL for the STS controller
 
 server:
   port: 8080
@@ -21,4 +25,3 @@ logging:
   level:
     com.example.obo: DEBUG
     org.springframework.security: DEBUG
-
