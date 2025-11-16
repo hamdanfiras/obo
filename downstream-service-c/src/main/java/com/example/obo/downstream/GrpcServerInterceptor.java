@@ -1,8 +1,6 @@
 package com.example.obo.downstream;
 
 import io.grpc.*;
-import io.grpc.Context;
-import io.grpc.Contexts;
 import net.devh.boot.grpc.server.security.interceptors.AuthenticatingServerInterceptor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;

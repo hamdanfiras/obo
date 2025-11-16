@@ -2,7 +2,6 @@ package com.example.obo.common;
 
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
@@ -50,4 +49,3 @@ public class JwtUtils {
         return evtType != null ? evtType.toString() : null;
     }
 }
-

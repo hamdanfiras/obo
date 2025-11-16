@@ -2,8 +2,6 @@ package com.example.obo.payments;
 
 import com.example.obo.common.EventMessage;
 import com.example.obo.payments.PaymentsServiceGrpc.PaymentsServiceImplBase;
-import com.example.obo.payments.PaymentRequest;
-import com.example.obo.payments.PaymentResponse;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.security.interceptors.AuthenticatingServerInterceptor;

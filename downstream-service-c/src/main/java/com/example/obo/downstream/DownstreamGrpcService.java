@@ -5,8 +5,6 @@ import com.example.obo.payments.FinalizeRequest;
 import com.example.obo.payments.FinalizeResponse;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
 
 @GrpcService
 public class DownstreamGrpcService extends PaymentsServiceImplBase {
