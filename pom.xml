@@ -26,7 +26,7 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-boot.version>3.5.4</spring-boot.version>
-        <nimbus-jose-jwt.version>9.37</nimbus-jose-jwt.version>
+        <nimbus-jose-jwt.version>10.5</nimbus-jose-jwt.version>
         <grpc-spring-boot-starter.version>2.15.0.RELEASE</grpc-spring-boot-starter.version>
     </properties>
 
