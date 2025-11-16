@@ -1,0 +1,17 @@
+services:
+  activemq:
+    image: rmohr/activemq:5.15.9
+    container_name: activemq
+    ports:
+      - "61616:61616"
+      - "8161:8161"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider http://localhost:8161/ || exit 1",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
