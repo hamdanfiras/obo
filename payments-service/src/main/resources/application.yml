@@ -4,7 +4,17 @@ spring:
   application:
     name: payments-service
   security:
-    oauth2: {}  # JWT decoder configured manually in SecurityConfig
+    oauth2:
+      client:
+        registration:
+          obo-generic:
+            provider: sts
+            client-id: gateway-service
+            client-authentication-method: none
+            authorization-grant-type: urn:ietf:params:oauth:grant-type:token-exchange
+        provider:
+          sts:
+            token-uri: http://idp-service.idp-namespace.svc.cluster.local/oauth2/token
 
 server:
   port: 8080

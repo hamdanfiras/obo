@@ -1,4 +1,4 @@
-package com.example.obo.payments;
+package com.example.obo.common;
 
 import io.grpc.*;
 import net.devh.boot.grpc.server.security.interceptors.AuthenticatingServerInterceptor;
@@ -16,9 +16,11 @@ import java.util.stream.Collectors;
 public class GrpcServerInterceptor implements ServerInterceptor {
 
     private final JwtDecoder jwtDecoder;
+    private final String expectedAudience;
 
-    public GrpcServerInterceptor(JwtDecoder jwtDecoder) {
+    public GrpcServerInterceptor(JwtDecoder jwtDecoder, String expectedAudience) {
         this.jwtDecoder = jwtDecoder;
+        this.expectedAudience = expectedAudience;
     }
 
     @Override
@@ -41,14 +43,16 @@ public class GrpcServerInterceptor implements ServerInterceptor {
             String audience = jwt.getAudience() != null && !jwt.getAudience().isEmpty()
                     ? jwt.getAudience().get(0)
                     : null;
-            if (!"payments-service".equals(audience)) {
+            if (audience == null || !expectedAudience.equals(audience)) {
                 call.close(Status.PERMISSION_DENIED.withDescription("Invalid audience"), new Metadata());
                 return new ServerCall.Listener<ReqT>() {
                 };
             }
 
-            // Extract authorities from scope
+            // Extract scope
             String scope = jwt.getClaimAsString("scope");
+
+            // Extract authorities from scope
             List<SimpleGrantedAuthority> authorities = scope != null
                     ? java.util.Arrays.stream(scope.split(" "))
                             .map(s -> new SimpleGrantedAuthority("SCOPE_" + s))

@@ -5,6 +5,13 @@ spring:
   activemq:
     broker-url: tcp://localhost:61616
 
+  security:
+    oauth2:
+      client:
+        provider:
+          sts:
+            token-uri: http://localhost:8081/oauth2/token
+
 grpc:
   server:
     port: 9093

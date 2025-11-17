@@ -1,6 +1,14 @@
 server:
   port: 8085
 
+spring:
+  security:
+    oauth2:
+      client:
+        provider:
+          sts:
+            token-uri: http://localhost:8081/oauth2/token
+
 grpc:
   server:
     port: 9095

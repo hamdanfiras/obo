@@ -1,13 +1,8 @@
 spring:
-  activemq:
-    broker-url: tcp://activemq:61616
-
   security:
     oauth2:
       client:
         provider:
           sts:
             token-uri: http://sts:8080/oauth2/token
-sts:
-  token-uri: http://sts:8080/oauth2/token
 
