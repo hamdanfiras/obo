@@ -16,15 +16,11 @@ import org.springframework.web.client.RestClient;
 public class OAuth2ClientConfig {
 
     @Bean
-    public RestClient restClient() {
-        return RestClient.builder().build();
-    }
-
-    @Bean
     public OAuth2AuthorizedClientManager authorizedClientManager(
             ClientRegistrationRepository clientRegistrationRepository,
-            OAuth2AuthorizedClientRepository authorizedClientRepository,
-            RestClient restClient) {
+            OAuth2AuthorizedClientRepository authorizedClientRepository) {
+
+        var restClient = RestClient.builder().build();
 
         // Our custom provider that does the token-exchange HTTP call
         OAuth2AuthorizedClientProvider provider = new CustomTokenExchangeAuthorizedClientProvider(restClient);
