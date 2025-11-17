@@ -55,7 +55,7 @@ public class CustomTokenExchangeAuthorizedClientProvider implements OAuth2Author
         params.add("subject_token_type", "urn:ietf:params:oauth:token-type:access_token");
         params.add("requested_token_type", "urn:ietf:params:oauth:token-type:access_token");
 
-        // Pull extras (audience, scope) from context attributes (set in
+        // Pull extras (audience, scope, evt_type) from context attributes (set in
         // TokenExchangeService)
         Map<String, Object> attrs = context.getAttributes();
         Object audience = attrs.get("audience");
@@ -65,6 +65,10 @@ public class CustomTokenExchangeAuthorizedClientProvider implements OAuth2Author
         Object scope = attrs.get("scope");
         if (scope != null) {
             params.add("scope", scope.toString());
+        }
+        Object evtType = attrs.get("evt_type");
+        if (evtType != null) {
+            params.add("evt_type", evtType.toString());
         }
 
         // Token endpoint from provider configuration

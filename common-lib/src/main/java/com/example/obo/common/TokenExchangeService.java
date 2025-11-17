@@ -32,6 +32,13 @@ public class TokenExchangeService {
      * add one.
      */
     public String exchangeFor(String audience, String scope) {
+        return exchangeFor(audience, scope, null);
+    }
+
+    /**
+     * Exchange the current request's JWT for an OBO token with optional event type.
+     */
+    public String exchangeFor(String audience, String scope, String eventType) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
             throw new IllegalStateException("No Authentication found in security context");
@@ -47,6 +54,9 @@ public class TokenExchangeService {
                         }
                         if (scope != null) {
                             attrs.put("scope", scope);
+                        }
+                        if (eventType != null) {
+                            attrs.put("evt_type", eventType);
                         }
                     })
                     .build();

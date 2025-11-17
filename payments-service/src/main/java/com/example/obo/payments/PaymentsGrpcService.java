@@ -1,6 +1,7 @@
 package com.example.obo.payments;
 
 import com.example.obo.common.EventMessage;
+import com.example.obo.common.TokenExchangeService;
 import com.example.obo.payments.PaymentsServiceGrpc.PaymentsServiceImplBase;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
@@ -17,11 +18,11 @@ import java.util.UUID;
 public class PaymentsGrpcService extends PaymentsServiceImplBase {
 
     private final JmsTemplate jmsTemplate;
-    private final EventOboTokenService eventOboTokenService;
+    private final TokenExchangeService tokenExchangeService;
 
-    public PaymentsGrpcService(JmsTemplate jmsTemplate, EventOboTokenService eventOboTokenService) {
+    public PaymentsGrpcService(JmsTemplate jmsTemplate, TokenExchangeService tokenExchangeService) {
         this.jmsTemplate = jmsTemplate;
-        this.eventOboTokenService = eventOboTokenService;
+        this.tokenExchangeService = tokenExchangeService;
     }
 
     @Override
@@ -39,7 +40,8 @@ public class PaymentsGrpcService extends PaymentsServiceImplBase {
                     "Payments Service: Processing payment " + paymentId + " for amount " + request.getAmount());
 
             // Issue event-scoped OBO token
-            String eventOboToken = eventOboTokenService.issueEventOboToken("PAYMENT_INITIATED", "payments.process");
+            String eventOboToken = tokenExchangeService.exchangeFor("payments-service", "payments.process",
+                    "PAYMENT_INITIATED");
 
             // Publish event with OBO token
             var eventPayload = Map.of(
