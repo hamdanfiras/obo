@@ -2,7 +2,6 @@ package com.example.obo.common;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
@@ -11,7 +10,6 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.stereotype.Service;
 
 @Service
-//@ConditionalOnBean(OAuth2AuthorizedClientManager.class)
 public class TokenExchangeService {
 
     private static final Logger logger = LoggerFactory.getLogger(TokenExchangeService.class);
